@@ -1,7 +1,8 @@
 """
-filename: TODO: ask
+filename: HW08_Dortz_Program_832.py
 author: Michael Dortz (mjd9638)
-description: TODO
+description: finds the largest fraction by using Axially aligned gradient
+accent
 """
 
 import BirdBathFunc_CH_cls420 as bb
@@ -37,8 +38,7 @@ def axially_aligned_search(min_val, max_val,
     :param degree: magnitude of degree change for a dimension
     :return: optimized value of bird bath
     """
-    if count == 0:
-        count = 1
+
     # if the current known maximum is -1
     if curr_max == -1:
         # get the current max, as search algo just started
@@ -114,26 +114,30 @@ def axially_aligned_search(min_val, max_val,
             temp_dim = [roll, tilt, twist + degree]
 
     count += 1
-    print(count)
 
     # if the temporary max is greater than the current max
     if temp_max > curr_max:
-        print("\t\tFound better max at    roll = " + str(round(temp_dim[0], 3)) +
+        """
+        print(str(count) + "\t\tFound better max at    roll = " + str(round(temp_dim[0], 3)) +
               ", tilt = " + str(round(temp_dim[1], 3)) + ", twist = " +
               str(round(temp_dim[2], 3)) + " with a degree of " + str(degree) +
               " (" + str(temp_max) + ")")
+          """
         # find max value around the temp dimensions
-        return axially_aligned_search(min_val, max_val, temp_max, temp_dim[0],
-                                      temp_dim[1], temp_dim[2], degree, count)
+        # return the best value and dimensions
+        return [temp_max, temp_dim[0], temp_dim[1], temp_dim[2], count, False]
+        # return axially_aligned_search(min_val, max_val, temp_max, temp_dim[0],
+        #                               temp_dim[1], temp_dim[2], degree, count)
     # else no new max was found
     else:
         # enough searching, it's done
-        print("\t\tBEST MAX FOUND: " + str(temp_max) + " = " + str(curr_max) +
-              "\tROLL: " + str(roll) + ", TILT: " + str(tilt) +
-              ", TWIST: " + str(twist))
-        # return the best value and dimensions
-        return [curr_max, roll, tilt, twist]
+        print(str(count) + "\t\tNo better max than     roll = " + str(round(roll, 3)) +
+              ", tilt = " + str(round(tilt, 3)) + ", twist = " +
+              str(round(twist, 3)) + " with a degree of " + str(degree) +
+              " (" + str(temp_max) + ")")
 
+        # return the best value and dimensions
+        return [curr_max, roll, tilt, twist, 0, True]
 
 def max_arg(min_val, max_val, roll, tilt, twist, degree):
     """
@@ -150,7 +154,7 @@ def max_arg(min_val, max_val, roll, tilt, twist, degree):
     """
     # set max value to -1 for search algo, and make list of current best dims
     max_value = -1
-    curr_best = [max_value, roll, tilt, twist]
+    curr_best = [max_value, roll, tilt, twist, 0, False]
     # while the degree is greater than the minimum it can be
     while degree >= .001:
         # find the best max given the degree
@@ -158,12 +162,14 @@ def max_arg(min_val, max_val, roll, tilt, twist, degree):
               + ", twist = " + str(twist) + " with a degree of " + str(degree))
         curr_best = axially_aligned_search(min_val, max_val,
                                            curr_best[0], curr_best[1],
-                                           curr_best[2], curr_best[3], degree, 0)
+                                           curr_best[2], curr_best[3], degree, curr_best[4])
         print("\tBest max for roll = " + str(roll) + ", tilt = " + str(tilt)
               + ", twist = " + str(twist) + " with a degree of " + str(degree)
               + " is " + str(curr_best[0]))
-        # divide the degree by 10 for a more through search of the max
-        degree /= 10
+
+        if curr_best[5] is True:
+            # divide the degree by 10 for a more through search of the max
+            degree /= 10
     # return the max value
     return curr_best
 
@@ -182,21 +188,27 @@ def all_max_args(min_val, max_val, increment, degree):
 
     # set
     temp_max = []
+    best_max = [0, 0, 0, 0, 0]
 
     # for each roll increment
-    for roll in range(min_val, max_val, increment):
+    for roll in range(min_val, max_val + 1, increment):
         # for each tilt increment
-        for tilt in range(min_val, max_val, increment):
+        for tilt in range(min_val, max_val + 1, increment):
             # for each twist increment
-            for twist in range(min_val, max_val, increment):
+            for twist in range(min_val, max_val + 1, increment):
                 # get the max of the starting dimensions
                 print("Finding best max for roll = " + str(roll) + ", tilt = "
                       + str(tilt) + ", twist = " + str(twist))
                 temp_max = max_arg(min_val, max_val, roll, tilt, twist, degree)
-                print("Best max for roll = " + str(roll) + ", tilt = "
+                print("Best max found for roll = " + str(roll) + ", tilt = "
                       + str(tilt) + ", twist = " + str(twist) + " is " +
-                      temp_max[0])
-
+                      str(temp_max[0]))
+                if temp_max[0] > best_max[0]:
+                    best_max = temp_max
+    print("Best fraction: " + str(best_max[0]))
+    print("The roll dimension: " + str(best_max[1]))
+    print("The tilt dimension: " + str(best_max[2]))
+    print("The twist dimension: " + str(best_max[3]))
 
 def main():
 
