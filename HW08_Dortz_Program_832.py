@@ -208,14 +208,16 @@ def all_max_args(min_val, max_val, increment, degree):
     print("The roll dimension: " + str(round(best_max[1], 3)))
     print("The tilt dimension: " + str(round(best_max[2], 3)))
     print("The twist dimension: " +str(round(best_max[3], 3)))
-    print(best_start)
+    print("Best results were derived from:\n\troll = "+ str(best_start[0]) +
+          "\n\ttilt = " + str(best_start[1]) + "\n\ttwist = " +
+          str(best_start[2]))
     # if the best max found was better than the professor's, print that too
     if best_max[0] > 0.4999915421143469:
-        print("Better than the professor!")
+        print("Better than the professor! (" + str(0.4999915421143469) + ")")
     elif best_max[0] == 0.4999915421143469:
-        print("As good as the professor!")
+        print("As good as the professor! (" + str(0.4999915421143469) + ")")
     else:
-        print("Worse than the professor :(")
+        print("Worse than the professor ): (" + str(0.4999915421143469) + ")")
 
 def main():
     """
@@ -224,7 +226,7 @@ def main():
     # set minimum, maximum and increment of parameters
     min_val = -90
     max_val = 90
-    increment = 45
+    increment = 15
     # call function to run the show
     all_max_args(min_val, max_val, increment, 1)
 
