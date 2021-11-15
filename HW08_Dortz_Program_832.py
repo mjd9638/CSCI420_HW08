@@ -23,7 +23,7 @@ def get_value(roll, tilt, twist):
 
 
 def axially_aligned_search(min_val, max_val,
-                           curr_max, roll, tilt, twist, degree, count):
+                           curr_max, roll, tilt, twist, degree):
     """
     performs the axially aligned search algo for the birdbath function. The
     search function starts by finding the starting fraction given the starting
@@ -48,11 +48,6 @@ def axially_aligned_search(min_val, max_val,
     temp_max = curr_max
     temp_dim = [roll, tilt, twist]
 
-    """
-    print("\t\tFinding better max for roll = " + str(round(roll, 3)) + ", tilt = " +
-          str(round(tilt, 3)) + ", twist = " + str(round(twist, 3)) + " with a degree of " +
-          str(degree) + " (" + str(curr_max) + ")")
-    """
     # if the new roll is >= minimum value
     if roll - degree >= min_val:
         # get value of fraction with roll - degree
@@ -113,8 +108,6 @@ def axially_aligned_search(min_val, max_val,
             temp_max = twist_plus
             temp_dim = [roll, tilt, twist + degree]
 
-    count += 1
-
     # if the temporary max is greater than the current max
     if temp_max > curr_max:
         """
@@ -123,21 +116,17 @@ def axially_aligned_search(min_val, max_val,
               str(round(temp_dim[2], 3)) + " with a degree of " + str(degree) +
               " (" + str(temp_max) + ")")
           """
-        # find max value around the temp dimensions
         # return the best value and dimensions
-        return [temp_max, temp_dim[0], temp_dim[1], temp_dim[2], count, False]
-        # return axially_aligned_search(min_val, max_val, temp_max, temp_dim[0],
-        #                               temp_dim[1], temp_dim[2], degree, count)
+        return [temp_max, temp_dim[0], temp_dim[1], temp_dim[2], False]
     # else no new max was found
     else:
         # enough searching, it's done
-        print(str(count) + "\t\tNo better max than     roll = " + str(round(roll, 3)) +
+        print("\t\tNo better max than roll = " + str(round(roll, 3)) +
               ", tilt = " + str(round(tilt, 3)) + ", twist = " +
               str(round(twist, 3)) + " with a degree of " + str(degree) +
               " (" + str(temp_max) + ")")
-
         # return the best value and dimensions
-        return [curr_max, roll, tilt, twist, 0, True]
+        return [curr_max, roll, tilt, twist, True]
 
 def max_arg(min_val, max_val, roll, tilt, twist, degree):
     """
@@ -154,21 +143,25 @@ def max_arg(min_val, max_val, roll, tilt, twist, degree):
     """
     # set max value to -1 for search algo, and make list of current best dims
     max_value = -1
-    curr_best = [max_value, roll, tilt, twist, 0, False]
+    curr_best = [max_value, roll, tilt, twist, False]
     # while the degree is greater than the minimum it can be
     while degree >= .001:
         # find the best max given the degree
+        """
         print("\tFinding best max for roll = " + str(roll) + ", tilt = " + str(tilt)
               + ", twist = " + str(twist) + " with a degree of " + str(degree))
+        """
         curr_best = axially_aligned_search(min_val, max_val,
                                            curr_best[0], curr_best[1],
-                                           curr_best[2], curr_best[3], degree, curr_best[4])
-        print("\tBest max for roll = " + str(roll) + ", tilt = " + str(tilt)
-              + ", twist = " + str(twist) + " with a degree of " + str(degree)
-              + " is " + str(curr_best[0]))
-
-        if curr_best[5] is True:
-            # divide the degree by 10 for a more through search of the max
+                                           curr_best[2], curr_best[3], degree)
+        # if this is the max of the degree
+        if curr_best[4] is True:
+            """
+            print("\tBest max for roll = " + str(roll) + ", tilt = " + str(tilt)
+                  + ", twist = " + str(twist) + " with a degree of " + str(degree)
+                  + " is " + str(curr_best[0]))
+            """
+            # divide the degree by 10 for a more through search of the max in the area
             degree /= 10
     # return the max value
     return curr_best
@@ -186,9 +179,9 @@ def all_max_args(min_val, max_val, increment, degree):
     :return: the best max value and its dimensions
     """
 
-    # set
-    temp_max = []
+    # set best values
     best_max = [0, 0, 0, 0, 0]
+    best_start = []
 
     # for each roll increment
     for roll in range(min_val, max_val + 1, increment):
@@ -196,63 +189,47 @@ def all_max_args(min_val, max_val, increment, degree):
         for tilt in range(min_val, max_val + 1, increment):
             # for each twist increment
             for twist in range(min_val, max_val + 1, increment):
-                # get the max of the starting dimensions
+                """
                 print("Finding best max for roll = " + str(roll) + ", tilt = "
                       + str(tilt) + ", twist = " + str(twist))
+                """
+                # get the max of the starting dimensions
                 temp_max = max_arg(min_val, max_val, roll, tilt, twist, degree)
                 print("Best max found for roll = " + str(roll) + ", tilt = "
                       + str(tilt) + ", twist = " + str(twist) + " is " +
                       str(temp_max[0]))
+                # if the newly found max >= best known one
                 if temp_max[0] > best_max[0]:
+                    # set best known one to newly found one, along with dims
                     best_max = temp_max
+                    best_start = [roll, tilt, twist]
+    # print out the results
     print("Best fraction: " + str(best_max[0]))
-    print("The roll dimension: " + str(best_max[1]))
-    print("The tilt dimension: " + str(best_max[2]))
-    print("The twist dimension: " + str(best_max[3]))
+    print("The roll dimension: " + str(round(best_max[1], 3)))
+    print("The tilt dimension: " + str(round(best_max[2], 3)))
+    print("The twist dimension: " +str(round(best_max[3], 3)))
+    print(best_start)
+    # if the best max found was better than the professor's, print that too
+    if best_max[0] > 0.4999915421143469:
+        print("Better than the professor!")
+    elif best_max[0] == 0.4999915421143469:
+        print("As good as the professor!")
+    else:
+        print("Worse than the professor :(")
 
 def main():
-
+    """
+    the main function
+    """
+    # set minimum, maximum and increment of parameters
     min_val = -90
     max_val = 90
-
-    all_max_args(min_val, max_val, 90, 1)
-    """
-    vals = max_arg(-1, -90, -90, -90, 1)
-    print("BEST FRACTION: " + str(vals[0]) + "\tROLL: " + str(vals[1]) + ", TILT: " + str(vals[2]) + ", TWIST: " + str(vals[3]))
-    vals = max_arg(-1, -90, -90, 90, 1)
-    print("BEST FRACTION: " + str(vals[0]) + "\tROLL: " + str(vals[1]) + ", TILT: " + str(vals[2]) + ", TWIST: " + str(
-        vals[3]))
-    vals = max_arg(-1, -90, 90, -90, 1)
-    print("BEST FRACTION: " + str(vals[0]) + "\tROLL: " + str(vals[1]) + ", TILT: " + str(vals[2]) + ", TWIST: " + str(
-        vals[3]))
-    vals = max_arg(-1, -90, 90, 90, 1)
-    print("BEST FRACTION: " + str(vals[0]) + "\tROLL: " + str(vals[1]) + ", TILT: " + str(vals[2]) + ", TWIST: " + str(
-        vals[3]))
-    vals = max_arg(-1, 90, -90, -90, 1)
-    print("BEST FRACTION: " + str(vals[0]) + "\tROLL: " + str(vals[1]) + ", TILT: " + str(vals[2]) + ", TWIST: " + str(
-        vals[3]))
-    vals = max_arg(-1, 90, -90, 90, 1)
-    print("BEST FRACTION: " + str(vals[0]) + "\tROLL: " + str(vals[1]) + ", TILT: " + str(vals[2]) + ", TWIST: " + str(
-        vals[3]))
-    vals = max_arg(-1, 90, 90, -90, 1)
-    print("BEST FRACTION: " + str(vals[0]) + "\tROLL: " + str(vals[1]) + ", TILT: " + str(vals[2]) + ", TWIST: " + str(
-        vals[3]))
-    vals = max_arg(-1, 90, 90, 90, 1)
-    print("BEST FRACTION: " + str(vals[0]) + "\tROLL: " + str(vals[1]) + ", TILT: " + str(vals[2]) + ", TWIST: " + str(
-        vals[3]))
-    """
-    """
-    for x in range(min_val, max_val + 1):
-        print("X:\t" + str(x))
-        for y in range(min_val, max_val + 1):
-            print("\tY:\t" + str(y))
-            for z in range(min_val, max_val + 1):
-                print("\t\tZ:\t" + str(z))
-                print("\t\t\t" + str(get_value(x, y, z)))
-    """
-
+    increment = 45
+    # call function to run the show
+    all_max_args(min_val, max_val, increment, 1)
 
 if __name__ == '__main__':
     start = tt.time()
     main()
-    print(tt.time() - start)
+    # for timing
+    print("Total time (sec):", tt.time() - start)
